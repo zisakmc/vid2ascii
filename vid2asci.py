@@ -12,15 +12,26 @@
 
 
 import cv2 as cv
+import os
 import copy
+import pygame as pg
 from multiprocessing import Process
-video = ['bad_apple.mp4', 'hill.webm']
+
+video = ['bad_apple.mp4', 'hill.webm', 'b.webm', 'z.mp4', 'o.mp4']
 audio =['bad_apple.mp3']
 
-vid = cv.VideoCapture(video[0])
+# pg.init()
+# song = pg.mixer.music.load(audio[0])
+# pg.mixer.music.play()
+
+vid = cv.VideoCapture(video[2])
 # vid = cv.VideoCapture(0)
+
 img_width = 0
 img_height = 0
+
+def nothing(x):
+    pass
 
 def toAscii(img):
 
@@ -42,6 +53,7 @@ def toAscii(img):
         width_div = w//96
     else:
         width_div = w//144 
+        # width_div = w//135 
 
     height_div = h//35   
 
@@ -66,8 +78,12 @@ def toAscii(img):
             last = index + 1
 
 def play():
+
+    cv.namedWindow("track")
+    cv.createTrackbar('threshold','track',0,255,nothing)
+
     while True:
-        ret, img= vid.read()
+        ret, ori = vid.read()
         # img = cv.flip(img, 1)
 
 
@@ -75,9 +91,10 @@ def play():
             print('camera not found')
             exit(1)
         
-        img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        threshold = 100 
-        img = cv.threshold(img, threshold, 255, cv.THRESH_BINARY)[1]
+        img = cv.cvtColor(ori, cv.COLOR_BGR2GRAY)
+        threshold = cv.getTrackbarPos('threshold','track')
+        # threshold = 128 
+        img = cv.threshold(img, threshold, 255, cv.THRESH_BINARY_INV)[1]
 
         
 
@@ -95,6 +112,8 @@ def play():
         # print(img.shape)
         
         cv.imshow('frame', img)
+        # cv.imshow('ori', ori)
+        cv.imshow('track', threshold)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
