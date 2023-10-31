@@ -17,14 +17,13 @@ import copy
 import pygame as pg
 from multiprocessing import Process
 
-video = ['bad_apple.mp4', 'hill.webm', 'b.webm', 'z.mp4', 'o.mp4']
-audio =['bad_apple.mp3']
+# video = ['bad_apple.mp4', 'hill.webm', 'b.webm', 'z.mp4', 'o.mp4','g.mp4','ci.mp4','ff.mp4','kha.mp4']
+# audio =['bad_apple.mp3', 'z.mp3','o.mp3','g.mp3','ci.mp3', 'ff.mp3','kha.mp3']
 
-# pg.init()
-# song = pg.mixer.music.load(audio[0])
-# pg.mixer.music.play()
-
-vid = cv.VideoCapture(video[2])
+pg.init()
+song = pg.mixer.music.load('kha.mp3')
+vid = cv.VideoCapture('kha.mp4')
+pg.mixer.music.play()
 # vid = cv.VideoCapture(0)
 
 img_width = 0
@@ -44,7 +43,8 @@ def toAscii(img):
     # need.
     #----------------------------------------
 
-    symbols = ['*','-',',','#','+','^','!','.']
+    symbols = ['.','-',',','#','+','^','!','*']
+    # symbols = ['z','-',',','#','+','^','!','.']
     # symbols = ["$", "#" ,"S" ,"%" ,"?" ,"*" ,"+" , ";", ":", "," "."]
     size = len(symbols)
 
@@ -52,8 +52,8 @@ def toAscii(img):
     if w <=500:
         width_div = w//96
     else:
-        width_div = w//144 
-        # width_div = w//135 
+        # width_div = w//144 
+        width_div = w//135 
 
     height_div = h//35   
 
@@ -72,15 +72,15 @@ def toAscii(img):
         output+='>'
 
     last = 0
-    for index, _ in enumerate(copy.copy(output)):
+    for index, _ in enumerate(output):
         if output[index] == '>':
-            print( output[last:index + 1] )
+            print(f'\033[93m  { output[last:index + 1] } \033[00 ')
             last = index + 1
 
 def play():
 
-    cv.namedWindow("track")
-    cv.createTrackbar('threshold','track',0,255,nothing)
+    # cv.namedWindow("track")
+    # cv.createTrackbar('threshold','track',0,255,nothing)
 
     while True:
         ret, ori = vid.read()
@@ -92,8 +92,10 @@ def play():
             exit(1)
         
         img = cv.cvtColor(ori, cv.COLOR_BGR2GRAY)
-        threshold = cv.getTrackbarPos('threshold','track')
-        # threshold = 128 
+        # img=ori
+        # threshold = cv.getTrackbarPos('threshold','track')
+        # threshold = 86
+        threshold = 25
         img = cv.threshold(img, threshold, 255, cv.THRESH_BINARY_INV)[1]
 
         
@@ -108,12 +110,14 @@ def play():
                     args=(img,),)
         p.start()
         p.join()
-
+        #
         # print(img.shape)
+
+        # toAscii(img)
         
         cv.imshow('frame', img)
-        # cv.imshow('ori', ori)
-        cv.imshow('track', threshold)
+        cv.imshow('ori', ori)
+        # cv.imshow('track', threshold)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
